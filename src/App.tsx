@@ -38,7 +38,7 @@ function App() {
   );
   const queryParams = new URLSearchParams(window.location.search);
   const initialState = {
-    graphType: 'trendLines',
+    graphType: 'tableView',
     selectedRegions: queryParams.get('regions')?.split('~') || [],
     selectedCountries: queryParams.get('countries')?.split('~') || [],
     selectedIncomeGroups: queryParams.get('incomeGroups')?.split('~') || [],
@@ -60,7 +60,7 @@ function App() {
   const [state, dispatch] = useReducer(Reducer, initialState);
 
   const updateGraphType = (
-    graphType: 'scatterPlot' | 'map' | 'barGraph' | 'trendLine',
+    graphType: 'scatterPlot' | 'map' | 'barGraph' | 'trendLine' | 'tableView',
   ) => {
     dispatch({
       type: 'UPDATE_GRAPH_TYPE',
