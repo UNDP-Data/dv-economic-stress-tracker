@@ -1,0 +1,60 @@
+[
+  {
+    "Indicator": "Debt Stock (% of GDP)",
+    "IndicatorDescription": "Debt Stock (% of GDP)",
+    "DataKey": "debtpctgdp",
+    "CategoriesRange": [60, 80, 100],
+    "Categories": ["Very Low", "Low", "Moderate", "High"],
+    "LabelSuffix": "%",
+    "reverse": false,
+    "resolution": "yearly" 
+  },
+  {
+    "Indicator": "Credit Rating Linear Transformation",
+    "IndicatorDescription": "Credit Rating Linear Transformation",
+    "DataKey": "sovrate",
+    "CategoriesRange": [5, 9, 12],
+    "Categories": ["Very Low", "Low", "Moderate", "High"],
+    "reverse": true,
+    "resolution": "yearly" 
+  },
+  {
+    "Indicator": "Debt Service Payment (% of exports)",
+    "IndicatorDescription": "Debt service payment (% of exports)",
+    "DataKey": "dsp_pctexp",
+    "CategoriesRange": [5, 14, 20],
+    "Categories": ["Very Low", "Low", "Moderate", "High"],
+    "LabelSuffix": "%",
+    "reverse": false,
+    "resolution": "yearly" 
+  },
+  {
+    "Indicator": "Forex Reserves",
+    "IndicatorDescription": "Forex Reserves",
+    "DataKey": "reserves_mthimp",
+    "CategoriesRange": [1.5, 2.9, 6],
+    "Categories": ["Very Low", "Low", "Moderate", "High"],
+    "reverse": true,
+    "resolution": "monthly"  
+  },
+  {
+    "Indicator": "Exchange Rate Depreciation",
+    "IndicatorDescription": "Exchange Rate Depreciation",
+    "DataKey": "erdep",
+    "CategoriesRange": [5, 10, 20],
+    "Categories": ["Very Low", "Low", "Moderate", "High"],
+    "LabelSuffix": "%",
+    "reverse": false,
+    "resolution": "monthly"    
+  },
+  {
+    "Indicator": "Inflation",
+    "IndicatorDescription": "Inflation",
+    "DataKey": "inflation",
+    "CategoriesRange": [5, 12, 20],
+    "Categories": ["Very Low", "Low", "Moderate", "High"],
+    "LabelSuffix": "%",
+    "reverse": false,
+    "resolution": "monthly"
+  }
+]
