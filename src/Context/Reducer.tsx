@@ -23,6 +23,12 @@ export default (state: any, action: any) => {
       return { ...state, dataListCountry: action.payload };
     case 'UPDATE_MULTI_COUNTRY_TREND_CHART_COUNTRIES':
       return { ...state, multiCountryTrendChartCountries: action.payload };
+    case 'UPDATE_FILTER_START_YEAR':
+      return { ...state, filterStartYear: action.payload };
+    case 'UPDATE_FILTER_END_YEAR':
+      return { ...state, filterEndYear: action.payload };
+    case 'UPDATE_SORTING':
+      return { ...state, sorting: action.payload };
     default:
       return { ...state };
   }

@@ -75,6 +75,21 @@ export function Graph(props: Props) {
           d.data[xIndicatorIndex].yearlyData[
             d.data[xIndicatorIndex].yearlyData.length - 1
           ]?.date;
+        const colorArr = xIndicatorMetaData.reverse
+          ? [...UNDPColorModule.sequentialColors.negativeColorsx04].reverse()
+          : UNDPColorModule.sequentialColors.negativeColorsx04;
+        const bgColor =
+          xVal === undefined
+            ? UNDPColorModule.graphBackgroundColor
+            : xIndicatorMetaData.CategoriesRange.findIndex(
+                range => xVal <= range,
+              ) === -1
+            ? colorArr[3]
+            : colorArr[
+                xIndicatorMetaData.CategoriesRange.findIndex(
+                  range => xVal <= range,
+                )
+              ];
         return {
           countryCode: d['Alpha-3 code'],
           countryName: d['Country or Area'],
@@ -83,6 +98,7 @@ export function Graph(props: Props) {
           incomeGroup,
           country,
           xYear,
+          bgColor,
         };
       })
       .filter(d => d.xVal !== undefined),
@@ -222,7 +238,7 @@ export function Graph(props: Props) {
                   x={xScale(d.countryCode)}
                   y={heightScale(Math.max(0, d.xVal))}
                   width={xScale.bandwidth()}
-                  fill={UNDPColorModule.graphMainColor}
+                  fill={d.bgColor}
                   height={Math.abs(heightScale(d.xVal) - heightScale(0))}
                 />
                 {xScale.bandwidth() >= 7 && xScale.bandwidth() < 20 ? (

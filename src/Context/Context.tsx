@@ -12,6 +12,9 @@ const Context = createContext<CtxDataType>({
   reverseOrder: true,
   verticalBarLayout: true,
   dataListCountry: undefined,
+  filterStartYear: 2019,
+  filterEndYear: 2023,
+  sorting: 'country',
   multiCountryTrendChartCountries: ['China', 'India', 'Indonesia', 'Pakistan'],
   updateGraphType: (
     _d:
@@ -30,7 +33,10 @@ const Context = createContext<CtxDataType>({
   updateShowSource: (_d: boolean) => {},
   updateReverseOrder: (_d: boolean) => {},
   updateBarLayout: (_d: boolean) => {},
+  updateFilterStartYear: (_d: number) => {},
+  updateFilterEndYear: (_d: number) => {},
   updateMultiCountryTrendChartCountries: (_d: string[]) => {},
+  updateSorting: (_d: 'country' | 'region') => {},
 });
 
 export default Context;

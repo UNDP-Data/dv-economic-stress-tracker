@@ -1,7 +1,12 @@
 import { useContext } from 'react';
 import sortBy from 'lodash.sortby';
 import UNDPColorModule from 'undp-viz-colors';
-import { DataType, CtxDataType, IndicatorMetaDataType } from '../../Types';
+import {
+  DataType,
+  CtxDataType,
+  IndicatorMetaDataType,
+  CategoriesList,
+} from '../../Types';
 import Context from '../../Context/Context';
 
 interface Props {
@@ -11,7 +16,7 @@ interface Props {
 
 export function TableView(props: Props) {
   const { data, indicators } = props;
-  const { selectedRegions, selectedIncomeGroups, selectedCountries } =
+  const { selectedRegions, selectedIncomeGroups, selectedCountries, sorting } =
     useContext(Context) as CtxDataType;
   const dataSorted = sortBy(data, 'Country or Area');
   const dataFilteredByRegion =
@@ -30,13 +35,16 @@ export function TableView(props: Props) {
           d => selectedCountries.indexOf(d['Country or Area']) !== -1,
         )
       : dataFilteredByIG;
-  const dataFIlteredFinal = dataFilteredByCountry;
+  const dataFIlteredFinal = sortBy(
+    dataFilteredByCountry,
+    sorting === 'country' ? 'Country or Area' : 'Group 1',
+  );
   return (
     <div>
       <div>
         <div className='undp-table-head undp-table-head-sticky'>
           <div
-            style={{ width: '30%' }}
+            style={{ width: '30%', fontSize: '1rem' }}
             className='undp-table-head-cell undp-sticky-head-column'
           >
             <div style={{ paddingLeft: '1rem', paddingRight: '1rem' }}>
@@ -45,7 +53,7 @@ export function TableView(props: Props) {
           </div>
           {indicators.map((d, i) => (
             <div
-              style={{ width: '20%' }}
+              style={{ width: '20%', fontSize: '1rem' }}
               key={i}
               className='undp-table-head-cell undp-sticky-head-column align-right'
             >
@@ -59,18 +67,31 @@ export function TableView(props: Props) {
           <div
             key={i}
             className='undp-table-row'
-            style={{ backgroundColor: 'var(--white)' }}
+            style={{
+              backgroundColor: 'var(--white)',
+            }}
           >
             <div
-              style={{ width: '30%', fontSize: '1rem' }}
+              style={{
+                width: '30%',
+                fontSize: '1rem',
+                paddingTop: '0.5rem',
+                paddingBottom: '0.5rem',
+              }}
               className='undp-table-row-cell'
             >
               <div style={{ paddingLeft: '1rem', paddingRight: '1rem' }}>
-                <h5 className='undp-typography'>{d['Country or Area']}</h5>
+                <div className='undp-typography small-font'>
+                  <span className='bold'>{d['Country or Area']}</span>{' '}
+                  <span style={{ color: 'var(--gray-600)' }}>
+                    ({d['Group 1']})
+                  </span>
+                </div>
               </div>
             </div>
             {indicators.map((el, j) => {
-              const val =
+              // eslint-disable-next-line @typescript-eslint/no-explicit-any
+              const val: any =
                 d.data.findIndex(d1 => d1.indicator === el.DataKey) === -1
                   ? 'NA'
                   : d.data[d.data.findIndex(d1 => d1.indicator === el.DataKey)]
@@ -83,23 +104,30 @@ export function TableView(props: Props) {
                     ].value
                   : 'NA';
               const colorArr = el.reverse
-                ? UNDPColorModule.divergentColors.colorsx04.reverse()
-                : UNDPColorModule.divergentColors.colorsx04;
-              const bgColor =
-                val === 'NA'
+                ? [
+                    ...UNDPColorModule.sequentialColors.negativeColorsx04,
+                  ].reverse()
+                : UNDPColorModule.sequentialColors.negativeColorsx04;
+              const bgColor = el.isCategorical
+                ? val === 'NA'
                   ? UNDPColorModule.graphBackgroundColor
-                  : el.CategoriesRange.findIndex(range => val <= range) === -1
-                  ? colorArr[3]
-                  : colorArr[
-                      el.CategoriesRange.findIndex(range => val <= range)
-                    ];
+                  : UNDPColorModule.sequentialColors.negativeColorsx04[
+                      el.Categories.indexOf(val as CategoriesList)
+                    ]
+                : val === 'NA'
+                ? UNDPColorModule.graphBackgroundColor
+                : el.CategoriesRange.findIndex(range => val <= range) === -1
+                ? colorArr[3]
+                : colorArr[el.CategoriesRange.findIndex(range => val <= range)];
               const textColor =
                 val === 'NA'
                   ? 'var(--black)'
-                  : el.CategoriesRange.findIndex(range => val <= range) === 0 ||
-                    el.CategoriesRange.findIndex(range => val <= range) === -1
-                  ? 'var(--white)'
-                  : 'var(--black)';
+                  : bgColor ===
+                      UNDPColorModule.sequentialColors.negativeColorsx04[0] ||
+                    bgColor ===
+                      UNDPColorModule.sequentialColors.negativeColorsx04[1]
+                  ? 'var(--black)'
+                  : 'var(--white)';
               return (
                 <div
                   key={j}
@@ -108,12 +136,21 @@ export function TableView(props: Props) {
                     backgroundColor: bgColor,
                     color: textColor,
                     fontWeight: 'bold',
+                    paddingTop: '0.5rem',
+                    paddingBottom: '0.5rem',
                   }}
                   className='undp-table-row-cell align-right'
                 >
-                  <div style={{ paddingLeft: '1rem', paddingRight: '1rem' }}>
-                    {val}
-                    {el.LabelSuffix}
+                  <div
+                    className='small-font bold'
+                    style={{ paddingLeft: '1rem', paddingRight: '1rem' }}
+                  >
+                    {el.isCategorical
+                      ? val
+                      : val === 'NA'
+                      ? val
+                      : val.toFixed(1)}
+                    {val === 'NA' ? '' : el.LabelSuffix}
                   </div>
                 </div>
               );

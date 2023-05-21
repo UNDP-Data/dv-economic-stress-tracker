@@ -12,3 +12,7 @@ export const INCOME_GROUPS = [
   'Upper middle income',
   'High income',
 ];
+
+export const DEFAULT_START_YEAR = 2019;
+
+export const DEFAULT_END_YEAR = new Date().getFullYear();

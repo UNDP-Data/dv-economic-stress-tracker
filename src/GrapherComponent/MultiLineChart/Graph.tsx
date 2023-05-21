@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { useContext, useState } from 'react';
+import { useContext } from 'react';
 import { line, curveMonotoneX } from 'd3-shape';
 import { scaleLinear } from 'd3-scale';
 import max from 'lodash.max';
@@ -7,15 +7,9 @@ import min from 'lodash.min';
 import { format } from 'd3-format';
 import UNDPColorModule from 'undp-viz-colors';
 import styled from 'styled-components';
-import {
-  CtxDataType,
-  DataType,
-  IndicatorMetaDataType,
-  HoverDataType,
-} from '../../Types';
+import { CtxDataType, DataType, IndicatorMetaDataType } from '../../Types';
 import Context from '../../Context/Context';
 import { MAX_TEXT_LENGTH } from '../../Constants';
-import { TooltipForMultiLineChart } from '../../Components/TooltipForMultiLineChart';
 
 interface Props {
   data: DataType[];
@@ -52,11 +46,13 @@ const LabelText = styled.text`
 
 export function Graph(props: Props) {
   const { data, indicators, svgWidth, svgHeight } = props;
-  const { xAxisIndicator, multiCountryTrendChartCountries, showLabel } =
-    useContext(Context) as CtxDataType;
-  const [hoverData, setHoverData] = useState<HoverDataType | undefined>(
-    undefined,
-  );
+  const {
+    xAxisIndicator,
+    multiCountryTrendChartCountries,
+    showLabel,
+    filterStartYear,
+    filterEndYear,
+  } = useContext(Context) as CtxDataType;
   const margin = {
     top: 40,
     bottom: 50,
@@ -75,21 +71,35 @@ export function Graph(props: Props) {
     el => data[data.findIndex(d => d['Country or Area'] === el)],
   );
 
-  const { minYear, maxYear } = xIndicatorMetaData;
+  const minYear =
+    xIndicatorMetaData.minYear > new Date(filterStartYear, 11, 1)
+      ? xIndicatorMetaData.minYear
+      : new Date(filterStartYear, 11, 1);
+  const maxYear =
+    xIndicatorMetaData.maxYear < new Date(filterEndYear, 11, 1)
+      ? xIndicatorMetaData.maxYear
+      : new Date(filterEndYear, 11, 1);
   const valueArray: number[] = [];
   const yearArray: Date[] = [];
+
+  const minYearFiltered: Date = minYear;
+  const maxYearFiltered: Date = maxYear;
   const dataFormatted = countryData.map(d => {
     const xIndicatorIndex = d.data.findIndex(
       el => xIndicatorMetaData.DataKey === el.indicator,
     );
-    d.data[xIndicatorIndex].yearlyData.forEach(el => {
-      yearArray.push(el.date);
-      valueArray.push(el.value);
-    });
+    d.data[xIndicatorIndex].yearlyData
+      .filter(el => el.date >= minYearFiltered && el.date <= maxYearFiltered)
+      .forEach(el => {
+        yearArray.push(el.date);
+        valueArray.push(el.value);
+      });
     return {
       countryName: d['Country or Area'],
       alphaCode3: d['Alpha-3 code'],
-      countryFormattedData: d.data[xIndicatorIndex].yearlyData,
+      countryFormattedData: d.data[xIndicatorIndex].yearlyData.filter(
+        el => el.date >= minYearFiltered && el.date <= maxYearFiltered,
+      ),
     };
   });
 
@@ -99,13 +109,6 @@ export function Graph(props: Props) {
       : min(valueArray)
     : 0;
   const maxParam = max(valueArray) ? max(valueArray) : 0;
-
-  const minYearFiltered: Date = min(yearArray)
-    ? (min(yearArray) as Date)
-    : minYear;
-  const maxYearFiltered: Date = max(yearArray)
-    ? (max(yearArray) as Date)
-    : maxYear;
   const x = scaleLinear()
     .domain([minYearFiltered, maxYearFiltered])
     .range([0, graphWidth]);
@@ -134,7 +137,7 @@ export function Graph(props: Props) {
   const yTicks = y.ticks(5);
   const xTicks = dateRange.filter((_d, i) => i % 24 === 0);
   return (
-    <>
+    <div>
       {valueArray.length > 0 ? (
         <svg
           width='100%'
@@ -265,7 +268,7 @@ export function Graph(props: Props) {
                               x={x(el.date)}
                               y={y(el.value)}
                               dy={-8}
-                              fontSize={12}
+                              fontSize={16}
                               textAnchor='middle'
                               fill={
                                 UNDPColorModule.categoricalColors.colors[i % 10]
@@ -283,7 +286,7 @@ export function Graph(props: Props) {
                   {d.countryFormattedData.filter(el => el.value !== undefined)
                     .length > 0 ? (
                     <text
-                      fontSize={10}
+                      fontSize={16}
                       fill={UNDPColorModule.categoricalColors.colors[i % 10]}
                       x={x(
                         d.countryFormattedData.filter(
@@ -304,106 +307,13 @@ export function Graph(props: Props) {
                         ].value as number,
                       )}
                       dx={5}
-                      dy={4}
+                      dy={6}
                     >
                       {d.alphaCode3}
                     </text>
                   ) : null}
                 </g>
               ))}
-              {dateRange.map((d, i) => (
-                <rect
-                  key={i}
-                  x={x(d) - 3}
-                  y={0}
-                  width={6}
-                  height={graphHeight}
-                  fill='#fff'
-                  opacity={0}
-                  onMouseEnter={event => {
-                    setHoverData({
-                      country: xAxisIndicator,
-                      continent: `${d}`,
-                      rows: dataFormatted.map((el, j) => ({
-                        title: el.countryName,
-                        year: el.countryFormattedData[
-                          el.countryFormattedData.findIndex(d1 => d1.date === d)
-                        ].date,
-                        value:
-                          el.countryFormattedData[
-                            el.countryFormattedData.findIndex(
-                              d1 => d1.date === d,
-                            )
-                          ].value !== undefined
-                            ? el.countryFormattedData[
-                                el.countryFormattedData.findIndex(
-                                  d1 => d1.date === d,
-                                )
-                              ].value
-                            : 'NA',
-                        type: 'color',
-                        color: UNDPColorModule.categoricalColors.colors[j % 10],
-                        prefix: xIndicatorMetaData?.LabelPrefix,
-                        suffix: xIndicatorMetaData?.LabelSuffix,
-                      })),
-                      xPosition: event.clientX,
-                      yPosition: event.clientY,
-                    });
-                  }}
-                  onMouseMove={event => {
-                    setHoverData({
-                      country: xAxisIndicator,
-                      continent: `${d}`,
-                      rows: dataFormatted.map((el, j) => ({
-                        title: el.countryName,
-                        year: el.countryFormattedData[
-                          el.countryFormattedData.findIndex(d1 => d1.date === d)
-                        ].date,
-                        value:
-                          el.countryFormattedData[
-                            el.countryFormattedData.findIndex(
-                              d1 => d1.date === d,
-                            )
-                          ].value !== undefined
-                            ? el.countryFormattedData[
-                                el.countryFormattedData.findIndex(
-                                  d1 => d1.date === d,
-                                )
-                              ].value
-                            : 'NA',
-                        type: 'color',
-                        color: UNDPColorModule.categoricalColors.colors[j % 10],
-                        prefix: xIndicatorMetaData?.LabelPrefix,
-                        suffix: xIndicatorMetaData?.LabelSuffix,
-                      })),
-                      xPosition: event.clientX,
-                      yPosition: event.clientY,
-                    });
-                  }}
-                  onMouseLeave={() => {
-                    setHoverData(undefined);
-                  }}
-                />
-              ))}
-              {hoverData ? (
-                <line
-                  y1={0}
-                  y2={graphHeight}
-                  x1={
-                    hoverData.continent
-                      ? x(parseInt(hoverData.continent, 10))
-                      : 0
-                  }
-                  x2={
-                    hoverData.continent
-                      ? x(parseInt(hoverData.continent, 10))
-                      : 0
-                  }
-                  stroke='#212121'
-                  strokeDasharray='4 8'
-                  strokeWidth={1}
-                />
-              ) : null}
             </g>
           </g>
         </svg>
@@ -412,7 +322,6 @@ export function Graph(props: Props) {
           No data available for the countries selected
         </div>
       )}
-      {hoverData ? <TooltipForMultiLineChart data={hoverData} /> : null}
-    </>
+    </div>
   );
 }

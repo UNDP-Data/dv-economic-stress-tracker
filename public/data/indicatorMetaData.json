@@ -7,35 +7,49 @@
     "Categories": ["Very Low", "Low", "Moderate", "High"],
     "LabelSuffix": "%",
     "reverse": false,
-    "resolution": "yearly" 
+    "resolution": "yearly",
+    "isCategorical": false
   },
   {
-    "Indicator": "Credit Rating Linear Transformation",
-    "IndicatorDescription": "Credit Rating Linear Transformation",
+    "Indicator": "Credit Rating",
+    "IndicatorDescription": "Credit Rating",
     "DataKey": "sovrate",
     "CategoriesRange": [5, 9, 12],
     "Categories": ["Very Low", "Low", "Moderate", "High"],
     "reverse": true,
-    "resolution": "yearly" 
+    "resolution": "yearly",
+    "isCategorical": false
   },
   {
     "Indicator": "Debt Service Payment (% of exports)",
     "IndicatorDescription": "Debt service payment (% of exports)",
     "DataKey": "dsp_pctexp",
     "CategoriesRange": [5, 14, 20],
-    "Categories": ["Very Low", "Low", "Moderate", "High"],
+    "Categories": ["Very Low", "Low", "Medium", "High"],
     "LabelSuffix": "%",
-    "reverse": false,
-    "resolution": "yearly" 
+    "reverse": true,
+    "resolution": "yearly",
+    "isCategorical": false
   },
   {
-    "Indicator": "Forex Reserves",
-    "IndicatorDescription": "Forex Reserves",
+    "Indicator": "DSA Rating",
+    "IndicatorDescription": "DSA Rating",
+    "DataKey": "dsa",
+    "Categories": ["Very Low", "Low", "Moderate", "High"],
+    "LabelSuffix": "",
+    "reverse": false,
+    "resolution": "yearly",
+    "isCategorical": true
+  },
+  {
+    "Indicator": "Foreign Exchange Reserves (in months of imports)",
+    "IndicatorDescription": "Foreign Exchange Reserves (in months of imports)",
     "DataKey": "reserves_mthimp",
     "CategoriesRange": [1.5, 2.9, 6],
     "Categories": ["Very Low", "Low", "Moderate", "High"],
-    "reverse": true,
-    "resolution": "monthly"  
+    "reverse": false,
+    "resolution": "monthly",
+    "isCategorical": false  
   },
   {
     "Indicator": "Exchange Rate Depreciation",
@@ -45,7 +59,8 @@
     "Categories": ["Very Low", "Low", "Moderate", "High"],
     "LabelSuffix": "%",
     "reverse": false,
-    "resolution": "monthly"    
+    "resolution": "monthly",
+    "isCategorical": false    
   },
   {
     "Indicator": "Inflation",
@@ -55,6 +70,7 @@
     "Categories": ["Very Low", "Low", "Moderate", "High"],
     "LabelSuffix": "%",
     "reverse": false,
-    "resolution": "monthly"
+    "resolution": "monthly",
+    "isCategorical": false
   }
 ]

@@ -12,6 +12,13 @@ export interface IndicatorDataType {
   }[];
 }
 
+export type CategoriesList =
+  | 'Very Low'
+  | 'Low'
+  | 'Medium'
+  | 'High'
+  | 'Moderate';
+
 export interface DataType extends CountryGroupDataType {
   data: IndicatorDataType[];
 }
@@ -38,7 +45,8 @@ export type DataKeysType =
   | 'dsp_pctexp'
   | 'reserves_mthimp'
   | 'erdep'
-  | 'inflation';
+  | 'inflation'
+  | 'dsa';
 
 export interface IndicatorMetaDataTypeWithoutYear {
   Indicator: string;
@@ -48,9 +56,10 @@ export interface IndicatorMetaDataTypeWithoutYear {
   LabelPrefix?: string;
   LabelFormat?: string;
   CategoriesRange: number[];
-  Categories: string[];
+  Categories: CategoriesList[];
   reverse: boolean;
   resolution: 'monthly' | 'yearly' | 'quarterly';
+  isCategorical: boolean;
 }
 
 export interface IndicatorMetaDataType
@@ -95,6 +104,9 @@ export interface CtxDataType {
   reverseOrder: boolean;
   verticalBarLayout: boolean;
   multiCountryTrendChartCountries: string[];
+  filterStartYear: number;
+  filterEndYear: number;
+  sorting: 'country' | 'region';
   updateGraphType: (
     _d:
       | 'multiCountryTrendLine'
@@ -113,6 +125,9 @@ export interface CtxDataType {
   updateReverseOrder: (_d: boolean) => void;
   updateBarLayout: (_d: boolean) => void;
   updateMultiCountryTrendChartCountries: (_d: string[]) => void;
+  updateFilterStartYear: (_d: number) => void;
+  updateFilterEndYear: (_d: number) => void;
+  updateSorting: (_d: 'country' | 'region') => void;
 }
 
 export interface LastUpdatedDataType {

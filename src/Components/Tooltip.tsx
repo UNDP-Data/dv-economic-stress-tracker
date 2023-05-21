@@ -137,7 +137,7 @@ export function Tooltip(props: Props) {
                 {d.prefix && d.value && d.value !== 'NA' ? `${d.prefix} ` : ''}
                 {typeof d.value === 'number'
                   ? d.value < 1000000
-                    ? format(',')(parseFloat(d.value.toFixed(2))).replace(
+                    ? format(',')(parseFloat(d.value.toFixed(1))).replace(
                         ',',
                         ' ',
                       )

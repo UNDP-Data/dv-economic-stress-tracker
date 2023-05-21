@@ -17,7 +17,11 @@ import {
 import { GrapherComponent } from './GrapherComponent';
 import Reducer from './Context/Reducer';
 import Context from './Context/Context';
-import { DEFAULT_VALUES } from './Constants';
+import {
+  DEFAULT_END_YEAR,
+  DEFAULT_START_YEAR,
+  DEFAULT_VALUES,
+} from './Constants';
 
 const VizAreaEl = styled.div`
   display: flex;
@@ -55,6 +59,9 @@ function App() {
     reverseOrder: queryParams.get('reverseOrder') === 'true',
     dataListCountry: 'Bangladesh',
     verticalBarLayout: queryParams.get('verticalBarLayout') !== 'false',
+    filterStartYear: DEFAULT_START_YEAR,
+    filterEndYear: DEFAULT_END_YEAR,
+    sorting: 'country',
   };
 
   const [state, dispatch] = useReducer(Reducer, initialState);
@@ -140,6 +147,27 @@ function App() {
     });
   };
 
+  const updateFilterStartYear = (filterStartYear: number) => {
+    dispatch({
+      type: 'UPDATE_FILTER_START_YEAR',
+      payload: filterStartYear,
+    });
+  };
+
+  const updateFilterEndYear = (filterEndYear: number) => {
+    dispatch({
+      type: 'UPDATE_FILTER_END_YEAR',
+      payload: filterEndYear,
+    });
+  };
+
+  const updateSorting = (sorting: 'country' | 'region') => {
+    dispatch({
+      type: 'UPDATE_SORTING',
+      payload: sorting,
+    });
+  };
+
   useEffect(() => {
     queue()
       .defer(csv, './data/data.csv')
@@ -167,7 +195,8 @@ function App() {
               d.reserves_mthimp === '' ? null : +d.reserves_mthimp,
             erdep: d.erdep === '' ? null : +d.erdep,
             inflation: d.inflation === '' ? null : +d.inflation,
-            wb_incgroup: d.inflation === '' ? null : d.wb_incgroup,
+            wb_incgroup: d.wb_incgroup === '' ? null : d.wb_incgroup,
+            dsa: d.dsa === '' ? null : d.dsa,
           }));
 
           const groupedData = groupBy(dataFormatted, 'ISOalpha3code');
@@ -178,6 +207,7 @@ function App() {
             'reserves_mthimp',
             'erdep',
             'inflation',
+            'dsa',
           ];
           const indicatorMetaDataWithMinMaxYear = indicatorMetaData.map(d => ({
             ...d,
@@ -188,8 +218,7 @@ function App() {
             maxYear: sortBy(
               dataFormatted.filter(el => el[d.DataKey] !== null),
               'date',
-              'desc',
-            )[0].date,
+            ).reverse()[0].date,
           }));
           const finalFormattedData = Object.keys(groupedData).map(key => {
             const incomeGroup =
@@ -247,6 +276,9 @@ function App() {
               updateBarLayout,
               updateDataListCountry,
               updateMultiCountryTrendChartCountries,
+              updateFilterStartYear,
+              updateFilterEndYear,
+              updateSorting,
             }}
           >
             <GrapherComponent

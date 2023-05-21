@@ -51,6 +51,8 @@ export function Graph(props: Props) {
     selectedCountries,
     selectedRegions,
     selectedIncomeGroups,
+    filterStartYear,
+    filterEndYear,
   } = useContext(Context) as CtxDataType;
   const [hoveredCountry, setHoveredCountry] = useState<undefined | string>(
     undefined,
@@ -79,21 +81,35 @@ export function Graph(props: Props) {
       indicators.findIndex(indicator => indicator.Indicator === xAxisIndicator)
     ];
 
-  const { minYear, maxYear } = xIndicatorMetaData;
+  const minYear =
+    xIndicatorMetaData.minYear > new Date(filterStartYear, 11, 1)
+      ? xIndicatorMetaData.minYear
+      : new Date(filterStartYear, 11, 1);
+  const maxYear =
+    xIndicatorMetaData.maxYear < new Date(filterEndYear, 11, 1)
+      ? xIndicatorMetaData.maxYear
+      : new Date(filterEndYear, 11, 1);
   const valueArray: number[] = [];
   const yearArray: Date[] = [];
+
+  const minYearFiltered: Date = minYear;
+  const maxYearFiltered: Date = maxYear;
   const dataFormatted = dataFilteredByIncomeGroup.map(d => {
     const xIndicatorIndex = d.data.findIndex(
       el => xIndicatorMetaData.DataKey === el.indicator,
     );
-    d.data[xIndicatorIndex].yearlyData.forEach(el => {
-      yearArray.push(el.date);
-      valueArray.push(el.value);
-    });
+    d.data[xIndicatorIndex].yearlyData
+      .filter(el => el.date >= minYearFiltered && el.date <= maxYearFiltered)
+      .forEach(el => {
+        yearArray.push(el.date);
+        valueArray.push(el.value);
+      });
     return {
       countryName: d['Country or Area'],
       alphaCode3: d['Alpha-3 code'],
-      countryFormattedData: d.data[xIndicatorIndex].yearlyData,
+      countryFormattedData: d.data[xIndicatorIndex].yearlyData.filter(
+        el => el.date >= minYearFiltered && el.date <= maxYearFiltered,
+      ),
     };
   });
 
@@ -103,13 +119,6 @@ export function Graph(props: Props) {
       : min(valueArray)
     : 0;
   const maxParam = max(valueArray) ? max(valueArray) : 0;
-
-  const minYearFiltered: Date = min(yearArray)
-    ? (min(yearArray) as Date)
-    : minYear;
-  const maxYearFiltered: Date = max(yearArray)
-    ? (max(yearArray) as Date)
-    : maxYear;
   const x = scaleLinear()
     .domain([minYearFiltered, maxYearFiltered])
     .range([0, graphWidth]);
@@ -287,14 +296,22 @@ export function Graph(props: Props) {
                               x={x(el.date)}
                               y={y(el.value)}
                               dy={-8}
-                              fontSize={12}
+                              fontSize={16}
                               textAnchor='middle'
                               fill={UNDPColorModule.graphMainColor}
                               strokeWidth={0.25}
                               stroke='#fff'
                               fontWeight='bold'
                             >
-                              {el.value < 1 ? el.value : format('~s')(el.value)}
+                              {`${
+                                xIndicatorMetaData.LabelPrefix
+                                  ? xIndicatorMetaData.LabelPrefix
+                                  : ''
+                              }${el.value.toFixed(1)}${
+                                xIndicatorMetaData.LabelSuffix
+                                  ? xIndicatorMetaData.LabelSuffix
+                                  : ''
+                              }`}
                             </text>
                           ) : null}
                         </g>
@@ -303,7 +320,7 @@ export function Graph(props: Props) {
                   {d.countryFormattedData.filter(el => el.value !== undefined)
                     .length > 0 && d.alphaCode3 === hoveredCountry ? (
                     <text
-                      fontSize={10}
+                      fontSize={16}
                       fill={UNDPColorModule.graphMainColor}
                       x={x(
                         d.countryFormattedData.filter(
@@ -324,7 +341,7 @@ export function Graph(props: Props) {
                         ].value as number,
                       )}
                       dx={5}
-                      dy={4}
+                      dy={6}
                     >
                       {d.alphaCode3}
                     </text>
@@ -389,22 +406,28 @@ export function Graph(props: Props) {
                                 x={x(el.date)}
                                 y={y(el.value)}
                                 dy={-8}
-                                fontSize={12}
+                                fontSize={16}
                                 textAnchor='middle'
                                 fill={UNDPColorModule.graphMainColor}
                                 strokeWidth={0.25}
                                 stroke='#fff'
                                 fontWeight='bold'
                               >
-                                {el.value < 1
-                                  ? el.value
-                                  : format('~s')(el.value)}
+                                {`${
+                                  xIndicatorMetaData.LabelPrefix
+                                    ? xIndicatorMetaData.LabelPrefix
+                                    : ''
+                                }${el.value.toFixed(1)}${
+                                  xIndicatorMetaData.LabelSuffix
+                                    ? xIndicatorMetaData.LabelSuffix
+                                    : ''
+                                }`}
                               </text>
                             </g>
                           ) : null,
                         )}
                       <text
-                        fontSize={10}
+                        fontSize={16}
                         fill={UNDPColorModule.graphMainColor}
                         x={x(
                           d.countryFormattedData.filter(
@@ -425,7 +448,7 @@ export function Graph(props: Props) {
                           ].value as number,
                         )}
                         dx={5}
-                        dy={4}
+                        dy={6}
                       >
                         {d.alphaCode3}
                       </text>
